@@ -1,0 +1,7 @@
+while True:
+    try:
+        a = float(input("Введите первое число: "))
+        b = float(input("Введите второе число: "))
+        print(f"Сумма: {a + b}\n")
+    except ValueError:
+        print("Необходим ввод числа с плавающей точкой!")
