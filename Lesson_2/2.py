@@ -9,8 +9,6 @@
 
 import random
 
-
-
 # Случайный вектор длины N, uniform(0, 1)
 def create_vector(N):
     return [random.uniform(0, 1) for _ in range(N)]
@@ -64,6 +62,9 @@ def convolve2d(image: list[list[float]], kernel: list[list[float]]) -> list[list
 
     out_H = H - kh + 1
     out_W = W - kw + 1
+
+    if out_H <= 0 or out_W <= 0:
+        raise ValueError("Ядро больше изображения")
 
     result = [[0.0] * out_W for _ in range(out_H)]
 
