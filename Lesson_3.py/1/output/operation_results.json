@@ -1,0 +1,41 @@
+{
+  "matrix_matrix_product": [
+    [
+      58,
+      64
+    ],
+    [
+      139,
+      154
+    ]
+  ],
+  "matrix_vector_product": [
+    14,
+    32
+  ],
+  "matrix_trace": 5,
+  "scalar_product": 32,
+  "histogram": [
+    [
+      1,
+      2,
+      2,
+      3
+    ],
+    [
+      1.0,
+      3.0,
+      5.0,
+      7.0,
+      9
+    ]
+  ],
+  "filter_vector": [
+    2,
+    3,
+    3,
+    1,
+    -1,
+    1
+  ]
+}
