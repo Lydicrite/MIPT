@@ -89,7 +89,7 @@ class GameManager:
                   f"(пытается угадать число {opponent.name})")
 
             if guess == opponent.secret_number:
-                print(f"  ✓ Правильно! {p.name} угадал число!")
+                print(f"  Правильно! {p.name} угадал число!")
                 p.receive_feedback(guess, "correct")
                 winner = p
                 step += 1

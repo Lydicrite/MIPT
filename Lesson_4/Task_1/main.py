@@ -1,7 +1,9 @@
-
+from game_manager import GameManager
 
 def main():
-    print("Hello, World!")
+    gm = GameManager()
+    gm.configure()
+    gm.run()
 
 if __name__ == "__main__":
     main()
