@@ -99,6 +99,8 @@ class GameManager:
 
             step += 1
 
+
+
         # ------------------ ИТОГ ------------------
         print("\n" + "=" * 55)
         if winner is not None:
