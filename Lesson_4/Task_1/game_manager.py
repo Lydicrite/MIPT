@@ -12,9 +12,7 @@ class GameManager:
 
     # ----------------------- НАСТРОЙКА -----------------------
     def configure(self):
-        print("=" * 55)
-        print("Игра «Угадай число»")
-        print("=" * 55)
+        print("=" * 55 + "    Игра «Угадай число»    " + "=" * 55)
         self._configure_range()
         self._configure_steps()
         self._configure_players()
@@ -41,7 +39,7 @@ class GameManager:
                 print("Введите целое число.")
 
     def _configure_players(self):
-        human = HumanPlayer("Игрок 1")
+        human = HumanPlayer("Пользователь")
         human.set_strategy()
 
         bot = BotPlayer("Бот")
@@ -61,9 +59,7 @@ class GameManager:
 
     # ----------------------- ИГРА -----------------------
     def run(self):
-        print("\n" + "=" * 55)
-        print("Игра началась")
-        print("=" * 55)
+        print("\n" + "=" * 55 + "    Игра началась    " + "=" * 55)
 
         # каждый игрок загадывает число
         for p in self.players:
@@ -149,4 +145,4 @@ class GameManager:
     def _print_reveal(self):
         print("-" * 55)
         for p in self.players:
-            print(f"Загаданное число {p.name}: {p.secret_number}")
+            print(f"Загаданное число игрока `{p.name}`: {p.secret_number}")
