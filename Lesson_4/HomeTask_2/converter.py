@@ -27,6 +27,7 @@ class ImageConverter:
         return BinaryImage(image.pixels)
 
     # Бинарное изображение -> монохромное изображение
+    # (градиент ЧБ в зависимости от минимального расстояния до белого пикселя)
     @staticmethod
     def binary_to_monochrome(image: BinaryImage) -> MonochromeImage:
         white = [
@@ -67,20 +68,8 @@ class ImageConverter:
 
 
 
-    # Монохромное изображение -> монохромное изображение
-    @classmethod
-    def monochrome_to_monochrome(
-        cls, image: MonochromeImage, reference: MonochromeImage
-    ) -> MonochromeImage:
-        values = [pixel for row in image.pixels for pixel in row]
-        sample = [pixel for row in reference.pixels for pixel in row]
-        corrected = iter(cls._correct(values, sample))
-        return MonochromeImage([
-            [next(corrected) for _ in range(image.width)]
-            for _ in range(image.height)
-        ])
-
     # Монохромное изображение -> бинарное изображение
+    # (итог: Ч или Б пиксель в зависимости от порога)
     @staticmethod
     def monochrome_to_binary(
         image: MonochromeImage, threshold: int | None = None
@@ -96,7 +85,22 @@ class ImageConverter:
             for row in image.pixels
         ])
 
+    # Монохромное изображение -> монохромное изображение
+    # (статистическая цветокоррекция через _correct с изображением того же типа)
+    @classmethod
+    def monochrome_to_monochrome(
+        cls, image: MonochromeImage, reference: MonochromeImage
+    ) -> MonochromeImage:
+        values = [pixel for row in image.pixels for pixel in row]
+        sample = [pixel for row in reference.pixels for pixel in row]
+        corrected = iter(cls._correct(values, sample))
+        return MonochromeImage([
+            [next(corrected) for _ in range(image.width)]
+            for _ in range(image.height)
+        ])
+
     # Монохромное изображение -> цветное изображение
+    # (замена цвета на яркость по palette, которая словарь или список кортежей)
     @staticmethod
     def monochrome_to_color(
         image: MonochromeImage,
@@ -132,6 +136,7 @@ class ImageConverter:
         ])
 
     # Цветное изображение -> цветное изображение
+    # (статистическая цветокоррекция через _correct с изображением того же типа)
     @classmethod
     def color_to_color(
         cls, image: ColorImage, reference: ColorImage

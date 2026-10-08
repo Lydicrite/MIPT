@@ -12,8 +12,7 @@ class ImageDemo:
         self.random = Random(seed)
         self.root = Path(__file__).parent
         self.palette = [
-            (value, 255 - value, min(255, value * 2))
-            for value in range(256)
+            (value, 255 - value, min(255, value * 2)) for value in range(256)
         ]
 
     def _random_binary(self) -> BinaryImage:

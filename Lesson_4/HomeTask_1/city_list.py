@@ -29,6 +29,8 @@ class CityList(City):
         self.__person_list.append(person)
         return True
 
+
+
     def add_family(self, family: Family) -> bool:
         if not isinstance(family, Family):
             raise TypeError("family must be a Family instance")
@@ -43,6 +45,8 @@ class CityList(City):
             self.add_person(member)
         self.__family_list.append(family)
         return True
+
+
 
     def remove_person(self, index: int) -> bool:
         if not self.__person_list:
