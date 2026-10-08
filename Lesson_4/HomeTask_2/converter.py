@@ -36,7 +36,7 @@ class ImageConverter:
             if pixel == 1
         ]
         if not white:
-            raise ValueError("Distance transform требует хотя бы один белый пиксель")
+            raise ValueError("Требуется хотя бы один белый пиксель")
 
         distances = [
             [min(sqrt((y - wy) ** 2 + (x - wx) ** 2)
