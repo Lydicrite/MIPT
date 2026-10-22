@@ -1,0 +1,54 @@
+[2026-10-19 14:31:10.279676] DEBUG id=11a5288d-f5b4-4861-b585-1a82788ccffb src=System user=Session_2026-10-19 14:31:10.279646 :: Система успешно запущена
+    version: 1.0.0
+[2026-10-19 14:31:10.289116] INFO  id=23848d5f-8a22-4615-ad51-fb3eebc9d885 src=Main user=Session_2026-10-19 14:31:10.279646 :: Начало демонстрации случайных исключений
+[2026-10-19 14:31:10.289705] ERROR id=e68565e3-91c1-4686-b3b5-8bb757ed36d2 src=RandomGen user=Session_2026-10-19 14:31:10.279646 :: Конфликт типов данных
+    iteration: 1
+    stack: Traceback (most recent call last):
+        File "f:\Lydicrite\MIPT\Python\Lesson_5\HomeTask_2\main.py", line 20, in main
+          crash_func()
+          ~~~~~~~~~~^^
+        File "f:\Lydicrite\MIPT\Python\Lesson_5\HomeTask_2\main.py", line 12, in <lambda>
+          (lambda: "текст" + 5,       LogLevel.ERROR, "Конфликт типов данных"),
+                   ~~~~~~~~^~~
+      TypeError: can only concatenate str (not "int") to str
+[2026-10-19 14:31:10.291605] WARN  id=de30d922-6dd6-44b5-bdcb-e9e19efa942a src=RandomGen user=Session_2026-10-19 14:31:10.279646 :: Ключ не найден в словаре
+    iteration: 2
+    stack: Traceback (most recent call last):
+        File "f:\Lydicrite\MIPT\Python\Lesson_5\HomeTask_2\main.py", line 20, in main
+          crash_func()
+          ~~~~~~~~~~^^
+        File "f:\Lydicrite\MIPT\Python\Lesson_5\HomeTask_2\main.py", line 14, in <lambda>
+          (lambda: {}["missing_key"], LogLevel.WARN,  "Ключ не найден в словаре")
+                   ~~^^^^^^^^^^^^^^^
+      KeyError: 'missing_key'
+[2026-10-19 14:31:10.292984] FATAL id=3cd01bd0-a13c-42d7-8853-1fdfb9800dbf src=RandomGen user=Session_2026-10-19 14:31:10.279646 :: Критический сбой вычислений!
+    iteration: 3
+    stack: Traceback (most recent call last):
+        File "f:\Lydicrite\MIPT\Python\Lesson_5\HomeTask_2\main.py", line 20, in main
+          crash_func()
+          ~~~~~~~~~~^^
+        File "f:\Lydicrite\MIPT\Python\Lesson_5\HomeTask_2\main.py", line 10, in <lambda>
+          (lambda: 1 / 0,             LogLevel.FATAL, "Критический сбой вычислений!"),
+                   ~~^~~
+      ZeroDivisionError: division by zero
+[2026-10-19 14:31:10.293981] FATAL id=26d9c70c-784f-4f5a-83c0-7a226ededcd7 src=RandomGen user=Session_2026-10-19 14:31:10.279646 :: Критический сбой вычислений!
+    iteration: 4
+    stack: Traceback (most recent call last):
+        File "f:\Lydicrite\MIPT\Python\Lesson_5\HomeTask_2\main.py", line 20, in main
+          crash_func()
+          ~~~~~~~~~~^^
+        File "f:\Lydicrite\MIPT\Python\Lesson_5\HomeTask_2\main.py", line 10, in <lambda>
+          (lambda: 1 / 0,             LogLevel.FATAL, "Критический сбой вычислений!"),
+                   ~~^~~
+      ZeroDivisionError: division by zero
+[2026-10-19 14:31:10.294874] ERROR id=1d63ea62-2d57-45a3-8199-f04bd2a4b21d src=RandomGen user=Session_2026-10-19 14:31:10.279646 :: Конфликт типов данных
+    iteration: 5
+    stack: Traceback (most recent call last):
+        File "f:\Lydicrite\MIPT\Python\Lesson_5\HomeTask_2\main.py", line 20, in main
+          crash_func()
+          ~~~~~~~~~~^^
+        File "f:\Lydicrite\MIPT\Python\Lesson_5\HomeTask_2\main.py", line 12, in <lambda>
+          (lambda: "текст" + 5,       LogLevel.ERROR, "Конфликт типов данных"),
+                   ~~~~~~~~^~~
+      TypeError: can only concatenate str (not "int") to str
+[2026-10-19 14:31:10.295694] INFO  id=6971f8a1-e545-44bc-abf0-ba182ea45dde src=Main user=Session_2026-10-19 14:31:10.279646 :: Демонстрация завершена, файл логов сохранен
