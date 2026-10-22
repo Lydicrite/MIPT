@@ -73,7 +73,17 @@ class MonochromeImage(BinaryImage):
             cv2.CV_32S)
         return (edges, output)
 
+'''
+Для data/1.jpg был вывод:
 
+Monochrome Image Processing
+[np.int32(112), np.int32(11), np.int32(45), np.int32(37), np.int32(156)]
+[np.int32(15), np.int32(20), np.int32(48), np.int32(49), np.int32(175)]
+[np.int32(96), np.int32(63), np.int32(88), np.int32(16), np.int32(198)]
+[np.int32(105), np.int32(91), np.int32(59), np.int32(59), np.int32(213)]
+[np.int32(27), np.int32(94), np.int32(46), np.int32(47), np.int32(178)]
+[np.int32(174), np.int32(111), np.int32(33), np.int32(33), np.int32(124)]
+'''
 
 class ColorImage(MonochromeImage):
     def __init__(self):
