@@ -85,12 +85,42 @@ Monochrome Image Processing
 [np.int32(174), np.int32(111), np.int32(33), np.int32(33), np.int32(124)]
 '''
 
+
+
+
+
 class ColorImage(MonochromeImage):
     def __init__(self):
         pass
 
     def segmentation(self, image):
-        return None
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        _, binary = cv2.threshold(
+            gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+        )
+
+        distance = cv2.distanceTransform(binary, cv2.DIST_L2, 5)
+        _, foreground = cv2.threshold(
+            distance, 0.2 * distance.max(), 255, cv2.THRESH_BINARY
+        )
+        foreground = foreground.astype("uint8")
+
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        background = cv2.dilate(binary, kernel, iterations=3)
+        unknown = cv2.subtract(background, foreground)
+
+        _, markers = cv2.connectedComponents(foreground)
+        markers += 1
+        markers[unknown == 255] = 0
+        cv2.watershed(image.copy(), markers)
+
+        object_mask = ((markers > 1) * 255).astype("uint8")
+        components = cv2.connectedComponentsWithStats(
+            object_mask,
+            4,  # connectivity
+            cv2.CV_32S,
+        )
+        return (object_mask, components)
 
 """
 Декоратор - структурный паттерн
@@ -119,14 +149,52 @@ class FilteredAnalysis(ObjectAnalysis):
         return (x,y,w,h,area)
 
 
+class HuMomentsAnalysis(ObjectAnalysis):
+    def __init__(self, obj):
+        self._proc = obj
+
+    def template_method(self, image):
+        filtered_image = self._proc.noise_filtering(image)
+        segmented_image, components = self._proc.segmentation(filtered_image)
+        parameters = self._proc.object_parameters(
+            (segmented_image, components)
+        )
+
+        num_labels, labels, _, _ = components
+        hu_moments = []
+        for label in range(1, num_labels):
+            component_mask = (labels == label).astype("uint8")
+            moments = cv2.moments(component_mask, binaryImage=True)
+            hu = cv2.HuMoments(moments).flatten().tolist()
+            hu_moments.append(hu)
+
+        return (*parameters, hu_moments)
+
+
+
+
+
 if __name__== '__main__':
     image_path = Path(__file__).resolve().parent.parent / 'data' / '1.jpg'
-    image = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
-    if image is None:
+    monochrome_image = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
+    color_image = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
+    if monochrome_image is None or color_image is None:
         raise FileNotFoundError(f"Не удалось загрузить изображение: {image_path}")
 
     print("Monochrome Image Processing")
     monochrome_segm = MonochromeImage()
-    (x, y, w, h, area) = monochrome_segm.template_method(image)
+    (x, y, w, h, area) = monochrome_segm.template_method(monochrome_image)
     for i in range(len(area)):
             print([x[i], y[i], w[i], h[i], area[i]])
+
+    print("Color Image Processing")
+    color_segm = ColorImage()
+    (x, y, w, h, area) = color_segm.template_method(color_image)
+    for i in range(len(area)):
+            print([x[i], y[i], w[i], h[i], area[i]])
+
+    print("Color Image Hu Moments")
+    hu_analysis = HuMomentsAnalysis(ColorImage())
+    (x, y, w, h, area, hu_moments) = hu_analysis.template_method(color_image)
+    for i in range(len(area)):
+            print([x[i], y[i], w[i], h[i], area[i], hu_moments[i]])
