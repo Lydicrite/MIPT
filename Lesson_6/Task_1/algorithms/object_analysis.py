@@ -88,7 +88,7 @@ Monochrome Image Processing
 
 
 
-
+# 1.a.ii
 class ColorImage(MonochromeImage):
     def __init__(self):
         pass
@@ -125,7 +125,6 @@ class ColorImage(MonochromeImage):
 """
 Декоратор - структурный паттерн
 """
-# 1.a.ii
 class FilteredAnalysis(ObjectAnalysis):
     def __init__(self, obj):
         self._proc = obj
