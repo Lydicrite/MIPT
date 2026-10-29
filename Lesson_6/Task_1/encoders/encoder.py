@@ -2,6 +2,7 @@ import csv
 import json
 import struct
 
+# 2.a
 
 class HistEncoder:
     @staticmethod

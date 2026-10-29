@@ -3,6 +3,8 @@ import copy
 import decoders.decoder
 import encoders.encoder
 
+# 2.a
+
 """
 Стратегия (Strategy)
 """

@@ -125,7 +125,7 @@ class ColorImage(MonochromeImage):
 """
 Декоратор - структурный паттерн
 """
-
+# 1.a.ii
 class FilteredAnalysis(ObjectAnalysis):
     def __init__(self, obj):
         self._proc = obj
@@ -148,7 +148,7 @@ class FilteredAnalysis(ObjectAnalysis):
 
         return (x,y,w,h,area)
 
-
+# 1.b.i
 class HuMomentsAnalysis(ObjectAnalysis):
     def __init__(self, obj):
         self._proc = obj

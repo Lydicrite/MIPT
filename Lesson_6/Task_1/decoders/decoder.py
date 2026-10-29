@@ -4,6 +4,7 @@ import struct
 
 import cv2
 
+# 2.a
 
 class HistDecoder:
     @staticmethod

@@ -1,5 +1,6 @@
 import cv2
 
+# 3.a
 
 class AbstractFactoryImageReader:
     def read_image(self, file_path):
