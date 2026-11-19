@@ -3,6 +3,7 @@ from PIL import Image
 from functools import partial
 from itertools import groupby
 from operator import itemgetter
+from pathlib import Path
 
 
 def load_image(path):
@@ -164,55 +165,94 @@ def apply_iterator(img, iterator_func):
     return values, coords
 
 
+
 # -------------------------- Свёрточные операторы -------------------------- 
 
+# ---------- Ядра - ленивые фабрики ----------
+
 def create_kernel_2d(kernel_func):
+    """Возвращает фабрику ядра"""
     return kernel_func
 
 def average_filter_2d(size):
-    return lambda: np.ones((size, size)) / (size * size)
+    """Ленивая фабрика: ядро создается только при вызове make_kernel()"""
+    def make_kernel():
+        return np.ones((size, size)) / (size * size)
+    return make_kernel
 
-def gaussian_filter_2d(size, sigma):
+def _gaussian_rows(size, sigma):
+    """Ленивый генератор строк ядра Гаусса"""
+    half = size // 2
+
     def gaussian(x, y):
         return np.exp(-(x**2 + y**2) / (2 * sigma**2))
-    
-    half = size // 2
-    kernel = np.array([
-        [gaussian(i - half, j - half) for j in range(size)]
-        for i in range(size)
-    ])
-    return kernel / kernel.sum()
 
-def apply_convolution(img, kernel, iterator_func):
+    for i in range(size):
+        yield np.array([gaussian(i - half, j - half) for j in range(size)])
+
+def gaussian_filter_2d(size, sigma):
+    """Ленивая фабрика: строки генерируются лениво, ядро собирается при вызове"""
+    def make_kernel():
+        kernel = np.array(list(_gaussian_rows(size, sigma)))
+        return kernel / kernel.sum()
+    return make_kernel
+
+
+# ---------- Ленивый итератор координат ----------
+
+def linear_iterator(height, width):
+    """Ленивый генератор координат пикселей"""
+    for i in range(height):
+        for j in range(width):
+            yield i, j
+
+
+# ---------- Ленивая свертка ----------
+
+def lazy_convolve_pixels(img, kernel, iterator_func):
+    """
+    Ленивый генератор, выдает (i, j, value) по мере обхода
+    Ничего не вычисляется, не начнётся итерирование
+    """
     kernel_size = kernel.shape[0]
     half = kernel_size // 2
-    
-    # Добавляем отступы
-    padded = np.pad(img, half, mode='constant', constant_values=0)
-    
     height, width = img.shape[:2]
-    
-    def convolve_pixel(i, j):
-        """Вычисляет свертку для одного пикселя."""
-        region = padded[i:i + kernel_size, j:j + kernel_size]
-        return np.sum(region * kernel)
-    
-    # Создаем результат
-    if len(img.shape) == 3:
-        result = np.zeros_like(img)
-        for c in range(img.shape[2]):
-            channel = img[:, :, c]
-            padded_c = np.pad(channel, half, mode='constant', constant_values=0)
-            for i, j in iterator_func(height, width):
-                region = padded_c[i:i + kernel_size, j:j + kernel_size]
-                result[i, j, c] = np.sum(region * kernel)
+    is_color = img.ndim == 3
+    channels = img.shape[2] if is_color else 1
+
+    if is_color:
+        padded = [np.pad(img[:, :, c], half, mode='constant') for c in range(channels)]
     else:
-        result = np.zeros_like(img)
-        for i, j in iterator_func(height, width):
-            region = padded[i:i + kernel_size, j:j + kernel_size]
-            result[i, j] = np.sum(region * kernel)
-    
+        padded = [np.pad(img, half, mode='constant')]
+
+    for i, j in iterator_func(height, width):
+        if is_color:
+            value = np.empty(channels)
+            for c in range(channels):
+                region = padded[c][i:i + kernel_size, j:j + kernel_size]
+                value[c] = np.sum(region * kernel)
+            yield i, j, value
+        else:
+            region = padded[0][i:i + kernel_size, j:j + kernel_size]
+            yield i, j, np.sum(region * kernel)
+
+def materialize(pixel_stream, shape, channels=None):
+    """Собирает ленивый поток (i, j, value) в массив"""
+    if channels is not None:
+        result = np.zeros((*shape, channels))
+    else:
+        result = np.zeros(shape)
+    for i, j, value in pixel_stream:
+        result[i, j] = value
     return result
+
+def apply_convolution(img, kernel, iterator_func):
+    """Обертка над ленивой сверткой"""
+    height, width = img.shape[:2]
+    channels = img.shape[2] if img.ndim == 3 else None
+    stream = lazy_convolve_pixels(img, kernel, iterator_func)
+    return materialize(stream, (height, width), channels)
+
 
 
 # -------------------------- Метрики -------------------------- 
@@ -244,15 +284,15 @@ def compare_by_iterator(img, iterator_funcs):
 
 
 if __name__ == "__main__":
-    image_path = "image.jpg"
-    output_path = "output_grayscale.jpg"
+    image_path = Path(__file__).resolve().parent / "image.jpg"
+    output_path = "Lesson_7/output_grayscale.jpg"
     img = load_image(image_path)
     print(f"Размер исходного изображения: {img.shape}")
     
 
 
-    # Задание 1: Конвертация в оттенки серого
-    print("\n1: Конвертация в оттенки серого")
+    # Задание 2: Конвертация в оттенки серого
+    print("\n2: Конвертация в оттенки серого")
     gray_img = to_grayscale_lambda(img)
     save_image(gray_img, output_path)
     print(f"Изображение сохранено в {output_path}")
@@ -276,25 +316,23 @@ if __name__ == "__main__":
     # Задание 3: Сверточные операторы
     print("\n3: Сверточные операторы")
     
-    # Фильтр усреднения 3x3
-    avg_kernel = average_filter_2d(3)
-    avg_filter = partial(apply_convolution, kernel=avg_kernel(), iterator_func=linear_iterator)
+    # Усреднение 3x3
+    avg_kernel = average_filter_2d(3)()
+    avg_filter = partial(apply_convolution, kernel=avg_kernel, iterator_func=linear_iterator)
     filtered_avg = avg_filter(img)
-    save_image(filtered_avg, "output_average.jpg")
-    print("Фильтр усреднения сохранен в output_average.jpg")
-    
-    # Фильтр Гаусса 5x5
-    gauss_kernel = gaussian_filter_2d(5, 1.0)
+    save_image(filtered_avg, "Lesson_7/output_average.jpg")
+
+    # Гаусс 5x5
+    gauss_kernel = gaussian_filter_2d(5, 1.0)()
     gauss_filter = partial(apply_convolution, kernel=gauss_kernel, iterator_func=linear_iterator)
     filtered_gauss = gauss_filter(img)
-    save_image(filtered_gauss, "output_gaussian.jpg")
-    print("Фильтр Гаусса сохранен в output_gaussian.jpg")
+    save_image(filtered_gauss, "Lesson_7/output_gaussian.jpg")
     
 
 
     # Задание 4: Сравнение результатов
     print("\n4: Сравнение результатов")
-    kernel = gaussian_filter_2d(3, 0.8)
+    kernel = gaussian_filter_2d(3, 0.8)()
     filtered_results = {}
     for name, iterator_func in iterators.items():
         filtered = apply_convolution(gray_img, kernel, iterator_func)
