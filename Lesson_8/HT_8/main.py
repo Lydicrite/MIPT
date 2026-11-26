@@ -36,7 +36,7 @@ def encode_image(image, block_size=16, threshold=128):
 
 
 def find_crosses(codes, columns, rows):
-    # Найти все шаблоны 101/000/101, включая перекрывающиеся
+    # Найти все шаблоны крестика 101/000/101, включая перекрывающиеся
     if columns <= 0 or rows <= 0:
         raise ValueError("Размеры сетки должны быть положительными")
     if len(codes) != columns * rows or re.fullmatch(r"[01]+", codes) is None:
@@ -117,3 +117,4 @@ if __name__ == "__main__":
 
 # На первом изображении кресты на блоксайзе 73 (python main.py images/example1.png --block-size 73)
 # На втором изображении кресты на блоксайзе 51 (python main.py images/example1.png --block-size 51)
+# Если обрезать example_1, можно найти все 4 креста (python main.py images/test_2.png --block-size 75 --threshold 110)
